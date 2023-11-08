@@ -106,6 +106,11 @@ uninstall-macos:
 	launchctl unload -w $(LAUNCHAGENT_PLIST)
 	rm -f -v $(LAUNCHAGENT_PLIST) 
 
+# Stops the macOS service.
+.PHONY: stop-macos
+stop-macos:
+	launchctl stop $(LAUNCHAGENT_LABEL)
+
 # Starts the macOS service.
 .PHONY: start-macos
 start-macos:
@@ -116,4 +121,5 @@ restart-macos: \
 	stop-macos \
 	sleep \
 	start-macos \
+	sleep \
 	status-macos
