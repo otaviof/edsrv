@@ -1,0 +1,35 @@
+---
+name: test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/go
+
+      - name: Build
+        run: |
+          make build
+          make snapshot
+
+      - name: Lint
+        run: |
+          make lint
+
+      - name: Unit Tests
+        run: |
+          make test-unit
+
+      - name: Integration Tests
+        run: |
+          make test-integration

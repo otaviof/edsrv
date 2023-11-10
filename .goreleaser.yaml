@@ -10,10 +10,9 @@ builds:
       - linux
     env:
       - GOFLAGS={{ .Env.GOFLAGS }}
+      - CGO_ENABLED={{ .Env.CGO_ENABLED }}
       - CGO_LDFLAGS={{ .Env.CGO_LDFLAGS }}
     main: cmd/edsrv/main.go
-    flags:
-      - -a
     goarch:
       - arm64
       - amd64
