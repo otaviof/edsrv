@@ -15,8 +15,8 @@ type LogLevelValue struct {
 
 var _ pflag.Value = &LogLevelValue{}
 
-// Set sets the informed level name (string) as a typed "slog.Level" equivalent, stored as a
-// valued on the shared pointer.
+// Set sets the informed level name (string) as a typed "slog.Level" equivalent,
+// stored as a valued on the shared pointer.
 func (l *LogLevelValue) Set(level string) error {
 	switch level {
 	case "error":

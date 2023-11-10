@@ -12,7 +12,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// Start represents the "start" subcommand, which starts the application API backend.
+// Start represents the "start" subcommand, which starts the application API
+// backend server.
 type Start struct {
 	logger *slog.Logger   // shared logger instance
 	cmd    *cobra.Command // cobra instance
@@ -25,12 +26,17 @@ Starts the edit-server API backend using the informed flags for configuration.
 
 `, AppName)
 
+// Cmd exposes the cobra command instance.
+func (s *Start) Cmd() *cobra.Command {
+	return s.cmd
+}
+
 // preRunE Validates the informed configuration.
 func (s *Start) preRunE(_ *cobra.Command, _ []string) error {
 	return s.cfg.ValidateStartFlags()
 }
 
-// runE runs the application API backend using the configuration informed via flags.
+// runE runs the API backend using the configuration informed via flags.
 func (s *Start) runE(_ *cobra.Command, _ []string) error {
 	logger := s.cfg.LoggerWith(
 		s.logger, config.AddrFlag, config.EditorFlag, config.TmpDirFlag,
@@ -43,7 +49,7 @@ func (s *Start) runE(_ *cobra.Command, _ []string) error {
 	return fasthttp.ListenAndServe(s.cfg.Addr, srv.RequestHandler())
 }
 
-// NewStart instantiate "start" subcommand and its flags.
+// NewStart instantiates "start" subcommand and its flags.
 func NewStart(logger *slog.Logger, cfg *config.Config) *Start {
 	s := &Start{
 		logger: logger,

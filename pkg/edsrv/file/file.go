@@ -31,8 +31,8 @@ func (f *File) Remove() error {
 	return os.Remove(f.name)
 }
 
-// NewFile instantiate a new temporary file on the informed directory, and using the informed
-// payload for its contents.
+// NewFile instantiate a new temporary file on the informed directory, and using
+// the informed payload for its contents.
 func NewFile(tmpDir string, payload []byte) (*File, error) {
 	f, err := os.CreateTemp(tmpDir, "edsrv-*")
 	if err != nil {

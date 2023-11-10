@@ -11,8 +11,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// Service represents the backend edit-server API, it handles the requests against the
-// supported endpoints effectively exposing the application features.
+// Service represents the backend edit-server API, it handles the requests against
+// the supported endpoints effectively exposing the application features.
 type Service struct {
 	logger *slog.Logger     // shared logger instance
 	ed     editor.Interface // editor instance
@@ -28,8 +28,8 @@ const (
 	textPlain = "text/plain"
 )
 
-// status handles the requests for the "/status" endpoint, the response is based on local
-// service configuration attributes.
+// status handles the requests for the "/status" endpoint, the response is based
+// on local service configuration attributes.
 func (s *Service) status(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType(textPlain)
 	ctx.SetBodyString(fmt.Sprintf(
@@ -40,9 +40,9 @@ func (s *Service) status(ctx *fasthttp.RequestCtx) {
 	s.logger.Debug("edit-server is running!", "endpoint", StatusPath)
 }
 
-// edit handles the requests for the "/" endpoint, the response is based on the Editor
-// outcomes. The request body is informed for new file content, while the response body uses
-// the final edited file payload.
+// edit handles the requests for the "/" endpoint, the response is based on the
+// Editor outcomes. The request body is informed for new file content, while the
+// response body uses the final edited file payload.
 func (s *Service) edit(ctx *fasthttp.RequestCtx) {
 	body := ctx.Request.Body()
 	logger := s.logger.With("endpoint", RootPath, "length", len(body))

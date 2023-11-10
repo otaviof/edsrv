@@ -21,8 +21,8 @@ const AppName = "edsrv"
 
 var rootDesc = fmt.Sprintf(`# %s
 
-Is a edit-server meant to work as a API backend for browser extensions that allow using a
-external text editor on a regular webpage.
+Is a edit-server meant to work as a API backend for browser extensions that allow
+using a external text editor on a regular webpage.
 
 `, AppName)
 
@@ -31,18 +31,19 @@ func (r *Root) Cmd() *cobra.Command {
 	logOpts := &slog.HandlerOptions{Level: r.cfg.LogLevel}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, logOpts))
 
-	r.cmd.AddCommand(NewStart(logger, r.cfg).cmd)
-	r.cmd.AddCommand(NewStatus(logger, r.cfg).cmd)
+	r.cmd.AddCommand(NewStart(logger, r.cfg).Cmd())
+	r.cmd.AddCommand(NewStatus(logger, r.cfg).Cmd())
 
 	return r.cmd
 }
 
-// NewRoot instantiate the root command with global configuration instance and flags.
+// NewRoot instantiates the root command with shared configuration instance and
+// subcommand flags.
 func NewRoot() *Root {
 	r := &Root{
 		cmd: &cobra.Command{
 			Use:   AppName,
-			Short: "backend for browser extensions to use a external text editors",
+			Short: "edit-server for browser extensions",
 			Long:  rootDesc,
 		},
 		cfg: config.NewConfig(),

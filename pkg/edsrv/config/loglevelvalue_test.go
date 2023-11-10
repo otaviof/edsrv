@@ -45,7 +45,8 @@ func TestLogLevelValue_Set(t *testing.T) {
 
 			var err error
 			if err = l.Set(tt.logLevelName); (err != nil) != tt.wantErr {
-				t.Errorf("LogLevelValue.Set() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("LogLevelValue.Set() error = %v, wantErr %v",
+					err, tt.wantErr)
 			}
 			if err != nil {
 				return

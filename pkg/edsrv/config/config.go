@@ -32,7 +32,7 @@ const (
 // ErrInvalidConfig shows the configuration is invalid, missing elements.
 var ErrInvalidConfig = errors.New("invalid configuration")
 
-// AddLogLevelFlag adds the "log-level" flag to configure "log/slog" verbosity level.
+// AddLogLevelFlag adds the "log-level" flag to configure its verbosity level.
 func (c *Config) AddLogLevelFlag(f *pflag.FlagSet) {
 	f.Var(
 		NewLogLevelValue(c.LogLevel),
@@ -69,7 +69,8 @@ func (c *Config) AddStartFlags(f *pflag.FlagSet) {
 // ValidateAddrFlag validates the "addr" flag.
 func (c *Config) ValidateAddrFlag() error {
 	if c.Addr == "" {
-		return fmt.Errorf("%w: flag %q is not informed", ErrInvalidConfig, AddrFlag)
+		return fmt.Errorf("%w: flag %q is not informed",
+			ErrInvalidConfig, AddrFlag)
 	}
 	return nil
 }
@@ -77,7 +78,8 @@ func (c *Config) ValidateAddrFlag() error {
 // ValidateEditorFlag validates the "editor" flag.
 func (c *Config) ValidateEditorFlag() error {
 	if c.Editor == "" {
-		return fmt.Errorf("%w: flag %q is not informed", ErrInvalidConfig, EditorFlag)
+		return fmt.Errorf("%w: flag %q is not informed",
+			ErrInvalidConfig, EditorFlag)
 	}
 	return nil
 }
@@ -85,7 +87,8 @@ func (c *Config) ValidateEditorFlag() error {
 // ValidateTmpDirFlag validates "tmp-dir" flag.
 func (c *Config) ValidateTmpDirFlag() error {
 	if c.TmpDir == "" {
-		return fmt.Errorf("%w: flag %q is not informed", ErrInvalidConfig, TmpDirFlag)
+		return fmt.Errorf("%w: flag %q is not informed",
+			ErrInvalidConfig, TmpDirFlag)
 	}
 	stat, err := os.Stat(c.TmpDir)
 	if err != nil {
@@ -109,7 +112,8 @@ func (c *Config) ValidateStartFlags() error {
 	return c.ValidateTmpDirFlag()
 }
 
-// LoggerWith decorates logger with the flags informed, where empty flag values are skipped.
+// LoggerWith decorates logger with the flags informed, where empty flag values
+// are skipped.
 func (c *Config) LoggerWith(logger *slog.Logger, flags ...string) *slog.Logger {
 	m := map[string]string{
 		AddrFlag:   c.Addr,

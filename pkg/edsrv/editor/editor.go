@@ -60,7 +60,8 @@ func (e *Editor) Edit(payload []byte) (file.Interface, error) {
 	return f, nil
 }
 
-// NewEditor instantiate a new editor with the desired command and temporary directory.
+// NewEditor instantiates a new editor with the desired command and temporary
+// directory.
 func NewEditor(logger *slog.Logger, command, tmpDir string) *Editor {
 	return &Editor{
 		logger:  logger,
