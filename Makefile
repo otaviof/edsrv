@@ -4,6 +4,7 @@ SHELL := /bin/sh
 APP := edsrv
 OUTPUT_DIR ?= bin
 
+# application directories
 CMD ?= ./cmd/$(APP)/...
 PKG ?= ./pkg/$(APP)/...
 
@@ -13,6 +14,10 @@ GOHOSTOS ?= $(shell go env GOHOSTOS)
 GOFLAGS ?= -race -a
 CGO_LDFLAGS ?= -s -w
 GOFLAGS_TEST ?= -failfast -race -cover -v
+
+# integration testing directory and default ginkgo flags
+TEST_INTEGRATION ?= ./test/integration/...
+GINKGO_FLAGS ?= -vv --race --fail-fast
 
 # executables full path and intallation prefix
 BIN ?= $(OUTPUT_DIR)/$(APP)
@@ -38,36 +43,58 @@ $(BIN):
 
 build: $(BIN)
 
-# Runs the unitary tests.
-.PHONY: test-unit
-test-unit:
-	go test $(GOFLAGS_TEST) $(CMD) $(PKG)
-
-test: test-unit
-
 # Runs the application using ARGS to inform extra parameter and flags.
 .PHONY: run
 run: GOFLAGS = 
 run:
 	go run $(CMD) $(ARGS)
 
+# Cleans up the output build directory completely.
 .PHONY: clean
 clean:
 	test -d "$(OUTPUT_DIR)" && rm -rf "$(OUTPUT_DIR)" >/dev/null
 
+# Runs the unitary tests.
+.PHONY: test-unit
+test-unit:
+	go test $(GOFLAGS_TEST) $(CMD) $(PKG)
+
+# Runs the integration tests.
+.PHONY: test-integration
+test-integration:
+	ginkgo run $(GINKGO_FLAGS) $(TEST_INTEGRATION)
+
+# Runs all the tests available.
+test: test-unit test-integration
+
+# Installs the tools needed for releasing, linting and testing, if they are not
+# installed already.
+.PHONY: install-tools
+install-tools:
+	which -s goreleaser || \
+		go install github.com/goreleaser/goreleaser@latest
+	which -s golangci-lint || \
+		go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	which -s ginkgo || \
+		go install -v github.com/onsi/ginkgo/v2/ginkgo@latest
+
 # Uses golangci-lint to inspect the code base.
 .PHONY: lint
 lint:
-	golangci-lint run $(CMD) $(PKG)
+	golangci-lint run ./...
 
 # Uses goreleaser to create a snapshot build.
 .PHONY: snapshot
 snapshot:
-	goreleaser build --clean --snapshot --single-target --output=$(BIN) >/dev/null 2>&1
+	goreleaser build \
+		--clean \
+		--snapshot \
+		--single-target \
+		--output=$(BIN) >/dev/null 2>&1
 
-# Installs the application using the binary built by goreleaser, which tends to be sightly
-# smaller than a regular build, the installation happens on ${PREFIX} directory with the same
-# application name.
+# Installs the application using the binary built by goreleaser, which tends to be
+# sightly smaller than a regular build, the installation happens on ${PREFIX}
+# directory with the same application name.
 .PHONY: install
 install: snapshot
 	sudo install -o root -g wheel -m 0755 $(BIN) $(PREFIX)

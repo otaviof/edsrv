@@ -6,7 +6,7 @@
         <string>io.github.otaviof.edsrv</string>
 
         <key>ServiceDescription</key>
-        <string>Edit server for browser extensions</string>
+        <string>edit-server for browser extensions</string>
 
         <key>ProgramArguments</key>
         <array>
@@ -40,7 +40,7 @@
         <key>EnvironmentVariables</key>
         <dict>
             <key>PATH</key>
-            <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
+            <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
             <key>EDITOR</key>
             <string>code -n -w</string>
             <key>TMPDIR</key>
