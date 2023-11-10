@@ -67,16 +67,18 @@ test-integration:
 # Runs all the tests available.
 test: test-unit test-integration
 
+# Installs Ginkgo command-line matching the "go.mod" version.
+install-ginkgo:
+	go install -v github.com/onsi/ginkgo/v2/ginkgo
+
 # Installs the tools needed for releasing, linting and testing, if they are not
 # installed already.
 .PHONY: install-tools
-install-tools:
-	which -s goreleaser || \
+install-tools: install-ginkgo
+	which goreleaser >/dev/null 2>&1 || \
 		go install github.com/goreleaser/goreleaser@latest
-	which -s golangci-lint || \
+	which golangci-lint >/dev/null 2>&1 || \
 		go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	which -s ginkgo || \
-		go install -v github.com/onsi/ginkgo/v2/ginkgo@latest
 
 # Uses golangci-lint to inspect the code base.
 .PHONY: lint
