@@ -8,6 +8,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "**/*.md"
+      - "contrib/**"
+      - LICENSE
   workflow_dispatch: {}
 
 jobs:

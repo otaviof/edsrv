@@ -9,7 +9,6 @@ CMD ?= ./cmd/$(APP)/...
 PKG ?= ./pkg/$(APP)/...
 
 # golang build and test configuration
-GOHOSTOS ?= $(shell go env GOHOSTOS)
 GOFLAGS ?= -v -a -race
 CGO_ENABLED ?= 1
 CGO_LDFLAGS ?= -s -w
@@ -82,7 +81,7 @@ build: $(BIN)
 # Uses goreleaser to create a snapshot build.
 .PHONY: goreleaser-snapshot
 goreleaser-snapshot: tool-goreleaser
-	goreleaser build --clean --snapshot --single-target -o=$(BIN)
+	goreleaser build --clean --snapshot --single-target -o=$(BIN) $(ARGS)
 
 snapshot: goreleaser-snapshot
 
@@ -144,71 +143,72 @@ uninstall:
 # Service
 #
 
+# Installs the plist service definition for macOS.
+.PHONY: install-launchagent
+install-launchagent: install
+	install -g staff -m 0755 $(PLIST) $(LAUNCHAGENT_PLIST)
+
+# Loads the launch-agent service file.
+.PHONY: launchctl-load
+launchctl-load:
+	launchctl load -w $(LAUNCHAGENT_PLIST)
+
+# Auxiliary target to run "sleep" command.
+.PHONY: sleep
+sleep:
+	@sleep 1
+
+# Shows the macOS service status.
+.PHONY: launchctl-list
+launchctl-list:
+	launchctl list $(LAUNCHAGENT_LABEL)
+
 # Calls the application to check the service status
 .PHONY: status
 status:
 	$(APP) status $(ARGS)
 
-# Installs the plist service definition for macOS.
-.PHONY: macos-install-launchagent
-macos-install-launchagent: install
-	install -g staff -m 0755 $(PLIST) $(LAUNCHAGENT_PLIST)
-
-.PHONY: sleep
-sleep:
-	@sleep 1
-
-# Loads the launch-agent service file.
-.PHONY: macos-launchctl-load
-macos-launchctl-load:
-	launchctl load -w $(LAUNCHAGENT_PLIST)
-
-# Shows the macOS service status.
-.PHONY: macos-launchctl-list
-macos-launchctl-list:
-	launchctl list $(LAUNCHAGENT_LABEL)
-
 # Deploys the macOS service and starts it.
-.PHONY: macos-deploy-service
-macos-deploy-service: \
-	macos-install-launchagent \
-	macos-launchctl-load \
+.PHONY: deploy-launchd
+deploy-launchd: \
+	install-launchagent \
+	launchctl-load \
 	sleep \
-	macos-launchctl-list \
+	launchctl-list \
 	status
 
 # Unloads the launch-agent plist file.
-.PHONY: macos-unload-launchagent
-macos-unload-launchagent:
+.PHONY: launchctl-unload
+launchctl-unload:
 	launchctl unload -w $(LAUNCHAGENT_PLIST)
 
 # Removes the launch-agent plist file.
-macos-remove-launchagent:
+remove-launchagent:
 	rm -f -v $(LAUNCHAGENT_PLIST) || true
 
 # Removes the whole macos service, the oppositive of "deploy" target.
-macos-remove-service: \
-	macos-unload-launchagent \
-	sleep \
-	macos-remove-launchagent
+.PHONY: remove-launchd
+remove-launchd: \
+	launchctl-unload \
+	remove-launchagent
 
 # Stops the macOS service.
-.PHONY: macos-launchctl-stop
-macos-launchctl-stop:
+.PHONY: launchctl-stop
+launchctl-stop:
 	launchctl stop $(LAUNCHAGENT_LABEL)
 
 # Starts the macOS service.
-.PHONY: macos-launchctl-start
-macos-launchctl-start:
+.PHONY: launchctl-start
+launchctl-start:
 	launchctl start $(LAUNCHAGENT_LABEL)
 
 # Restarts the macOS service.
-mac-restart-service: \
-	macos-launchctl-stop \
+restart-launchd: \
+	launchctl-stop \
 	sleep \
-	macos-launchctl-start \
+	launchctl-start \
 	sleep \
-	macos-launchctl-list \
+	launchctl-list \
 	status
 
 #
@@ -235,7 +235,7 @@ goreleaser-release: tool-goreleaser
 goreleaser-release: CGO_ENABLED = 0
 goreleaser-release: GOFLAGS = -a
 goreleaser-release:
-	goreleaser release --clean --fail-fast
+	goreleaser release --clean --fail-fast $(ARGS)
 
 # Releases the GITHUB_REF_NAME.
 release: \
