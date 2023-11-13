@@ -23,8 +23,9 @@ ACT_WORKFLOWS ?= .github/workflows/test.yaml
 BIN ?= $(OUTPUT_DIR)/$(APP)
 PREFIX ?= /usr/local/bin
 
-# github action tag (release) version
+# github action current ref name, and credentials
 GITHUB_REF_NAME ?= ${GITHUB_REF_NAME:-}
+GITHUB_TOKEN ?= ${GITHUB_TOKEN:-}
 
 # macos plist to define a edit-server service, running in the background
 PLIST ?= contrib/$(APP).plist
@@ -215,12 +216,19 @@ restart-launchd: \
 # GitHub Release
 #
 
-# Inspects GITHUB_REF_NAME variable, when the application is being released on
-# GitHub this variable shows the subject revision tag, which is also used as
-# version.
-github-ref-name-probe:
+# Asserts the required environment variables are set and the target release
+# version starts with "v".
+github-preflight:
 ifeq ($(strip $(GITHUB_REF_NAME)),)
 	$(error variable GITHUB_REF_NAME is not set)
+endif
+ifeq ($(shell echo ${GITHUB_REF_NAME} |grep -v -E '^v'),)
+	@echo GITHUB_REF_NAME=\"${GITHUB_REF_NAME}\"
+else
+	$(error invalid GITHUB_REF_NAME, it must start with "v")
+endif
+ifeq ($(strip $(GITHUB_TOKEN)),)
+	$(error variable GITHUB_TOKEN is not set)
 endif
 
 # Creates a new GitHub release with GITHUB_REF_NAME.
@@ -238,7 +246,7 @@ goreleaser-release:
 	goreleaser release --clean --fail-fast $(ARGS)
 
 # Releases the GITHUB_REF_NAME.
-release: \
-	github-ref-name-probe \
+github-release: \
+	github-preflight \
 	github-release-create \
 	goreleaser-release
