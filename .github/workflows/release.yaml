@@ -15,4 +15,6 @@ jobs:
       - uses: ./.github/actions/go
 
       - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make release
